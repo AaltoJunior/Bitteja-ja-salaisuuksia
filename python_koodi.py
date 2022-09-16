@@ -1,3 +1,5 @@
+# HUOM TÄMÄ ON VÄÄRÄ TIEDOSTO TYÖPAJAA VARTEN! TÄMÄ ON VAIN ARKISTO LÄHDEKOODISTA!
+
 # Python-algoritmi "Salaisuuksia ja bittejä" -työpajaa varten:
 # @ Author: Jaakko Takala, Aalto Junior
 
