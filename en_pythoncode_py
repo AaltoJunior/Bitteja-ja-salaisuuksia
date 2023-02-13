@@ -1,0 +1,139 @@
+# In Python code, functions are always written above the executable code.
+# Below are all the functions needed for encryption.
+# You shouldn't modify these functions unless you are an advanced coder.
+# Below the functions, you can find executable code into which the message to be encrypted/decrypted is entered.
+def alkulukutesti(n: int) -> bool:
+    # The function tests whether the number is a prime number with the 6k+-1 - prime number test
+    if n % 2 == 0 or n % 3 == 0:
+        return False
+    i = 5
+    juuri = int(n ** 0.5)
+    while i <= juuri:
+        if n % i == 0 or n % (i + 2) == 0:
+            return False
+        i += 6
+    return True
+
+def alkulukuparin_luonti(r, s) -> (int, int):
+     # The function generates the prime numbers required to generate encryption keys.
+     # Note! In real applications, prime numbers are generated using a random number generator.
+     # Key sizes are also much larger these days, usually 1024, 2048 or even 4096 bits.
+     # The prime numbers used are therefore of the order of 10^150.
+
+     # Prime numbers are selected from the proximity of the numbers given by the user.
+     # It is worth noting that the method does not produce completely random prime numbers.
+    while alkulukutesti(r) == False:
+        r += 1
+    while alkulukutesti(s) == False:
+        s += -1
+    return r, s
+
+def syt(a: int, b: int) -> int:
+    # The function calculates the greatest common factor of the numbers using the Euclidean algorithm.
+    if b == 0:
+        return a
+    else:
+        return syt(b, a % b)
+
+def pyj(a: int, b: int) -> int:
+    # The function determines the lowest common divisor of the numbers
+    # ab = syt(a,b) * pyj(a,b) <-> pyj(a,b) = ab / syt(a,b)
+    return int(a * b / syt(a, b))
+
+
+# The following functions are used to define a public and secret keys
+def julkinen_e(m: int) -> int:
+    for x in range(2, m):
+        if syt(m, x) == 1:
+            return x
+def salainen_d(m, e) -> int:
+    for x in range(2, m):
+        if (e * x) % m == 1:
+            return x
+
+def avainparien_luonti(alkuluku1: int, alkuluku2: int) -> (int, int, int, int):
+    n = alkuluku1 * alkuluku2
+    m = pyj(alkuluku1 - 1, alkuluku2 - 1)
+    e = julkinen_e(m)
+    d = salainen_d(m, e)
+    print("Julkinen avainparisi: (", n, ",", e, ")")
+    print("Salainen avainparisi: (", n, ",", d, ")")
+    return n, m, e, d
+
+# Below are the message encryption and decryption functions.
+def viestin_salaus(viesti: str, n: int, e: int) -> str:
+    merkkilista = []
+    for str in viesti.split():
+        num = int(str, 2)
+        merkkilista.append(num)
+    i = 0
+    merkkilistastr = []
+    for merkki in merkkilista:
+        # The pow command is a relatively fast way to calculate large powers in modulo.
+        salattu_merkki = pow(merkki, e, n)
+        salattu_merkki_str = f"{salattu_merkki}"
+        merkkilistastr.append(salattu_merkki_str)
+        i += 1
+    salattu_viesti = " ".join(merkkilistastr)
+    return salattu_viesti
+
+def viestin_purku(salattu_viesti: str, n: int, d: int) -> str:
+    merkkilista = []
+    for str in salattu_viesti.split():
+        num = int(str)
+        merkkilista.append(num)
+    i = 0
+    for merkki in merkkilista:
+        purettu_merkki = pow(merkki, d, n)
+        purettu_bin = ('{0:b}'.format(purettu_merkki).zfill(8))
+        merkkilista[i] = f"{(purettu_bin)}"
+        i += 1
+    purettu_viesti= ' '.join(merkkilista)
+    return purettu_viesti
+
+# ------ GENERATE KEY PAIRS ---------
+# Enter two numbers between 1000 and 10000:
+luku1 = 1234
+luku2 = 2345
+
+alkuluku1, alkuluku2 = alkulukuparin_luonti(luku1, luku2)
+n, m, e, d = avainparien_luonti(alkuluku1, alkuluku2)
+
+# ------ MESSAGE ENCRYPTION -------------
+# Copy the encrypted message in utf-8 format here:
+salattava_viesti = "01001101 01101111 11101001 00100001"
+
+# Enter the message recipient's public key here:
+avainpari = (2895817, 7)
+
+salattu_viesti = viestin_salaus(salattava_viesti, avainpari[0], avainpari[1])
+print("Salattu viesti:", salattu_viesti)
+
+# ------ DECRYPT ------------
+# Copy the message to be decrypted here:
+purettava_viesti = "1014814 1373040 2317731 704188"
+
+purettu_viesti = viestin_purku(purettava_viesti, n, d)
+print("Purettu viesti:", purettu_viesti)
+
+# ------ HACKING THE MESSAGE -------------
+# First solve the prime numbers of the person to be hacked with your own Python code.
+# You can write yoour code e.g. under these instructions.
+# Instructions:
+
+# Create a variable in which you place the hacked persons number n
+# Go through the integers x one by one with the while: or for: structure
+# Test whether the number x divides the number n
+# If x|n and 1 < x < n, x is one of the numbers p and q. Print x!
+
+# After finding the numbers p and q, use this code to hack the message.
+# Enter the message to be hacked, p and q and remove the triple '-s.
+
+'''
+hakkeroitava_viesti = ...
+p = ...
+q = ...
+nh, mh, eh, dh = avainparien_luonti(p, q)
+hakkeroitu_viesti = viestin_purku(hakkeroitava_viesti, nh, dh)
+print("Hakkeroitu viesti:", hakkeroitu_viesti)
+'''
